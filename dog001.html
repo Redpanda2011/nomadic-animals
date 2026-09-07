@@ -124,6 +124,20 @@
         Take me somewhere new, record where you found me,
         and then release me for the next person to discover!
       </p>
+    <form id="found-form">
+  <input id="finder-name" type="text" placeholder="Your name" required><br><br>
+
+  <input id="found-location" type="text" placeholder="Where did you find me?" required><br><br>
+
+  <textarea id="found-message" placeholder="Leave a message"></textarea><br><br>
+
+  <input id="found-date" type="date" required><br><br>
+
+  <button type="submit">Add My Stop</button>
+</form>
+
+<p id="form-status"></p>
+
     </div>
 
   </div>
@@ -160,6 +174,41 @@
   }
 
   loadJourneyStops();
+  document.getElementById("found-form").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const finderName = document.getElementById("finder-name").value;
+  const location = document.getElementById("found-location").value;
+  const message = document.getElementById("found-message").value;
+  const foundDate = document.getElementById("found-date").value;
+  const status = document.getElementById("form-status");
+
+  status.textContent = "Saving...";
+
+  const { error } = await supabaseClient
+    .from("journey_stops")
+    .insert({
+      animal_id: "DOG001",
+      location: location,
+      finder_name: finderName,
+      message: message,
+      found_date: foundDate
+    });
+
+  if (error) {
+    console.error("Error saving journey stop:", error);
+    status.textContent = "Sorry, something went wrong. Please try again.";
+    return;
+  }
+
+  status.textContent = "Journey stop added! Thank you for helping Dog #001 travel!";
+  document.getElementById("found-form").reset();
+
+  const container = document.getElementById("journey-stops");
+  container.innerHTML = "";
+  await loadJourneyStops();
+});
+
 </script>
 </body>
 </html>

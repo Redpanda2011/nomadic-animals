@@ -73,9 +73,16 @@
       color: #666;
     }
   </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
+  <script>
+  const SUPABASE_URL = "https://dulufsbuinyiarcjmygx.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_dgGRyfBcB3SvHJDamjGc0A_InKqDiz4:;
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
 
   <header>
     <h1>🐾 Nomadic Animals</h1>
@@ -103,6 +110,7 @@
         Springdale, Arkansas
       </p>
 
+     <div id="journey-stops"></div>
       <p>
         This is where Dog #001 begins its adventure.
         Future finders will be able to add new locations
@@ -124,5 +132,34 @@
     Nomadic Animals • Every Animal Has a Story
   </footer>
 
+<script>
+  async function loadJourneyStops() {
+    const { data, error } = await supabaseClient
+      .from("journey_stops")
+      .select("*")
+      .eq("animal_id", "DOG001")
+      .order("found_date", { ascending: true });
+
+    if (error) {
+      console.error("Error loading journey stops:", error);
+      return;
+    }
+
+    const container = document.getElementById("journey-stops");
+
+    data.forEach(stop => {
+      const item = document.createElement("p");
+      item.innerHTML = `
+        <strong>${stop.location}</strong><br>
+        ${stop.finder_name ? "Found by: " + stop.finder_name + "<br>" : ""}
+        ${stop.message ? stop.message + "<br>" : ""}
+        ${stop.found_date || ""}
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  loadJourneyStops();
+</script>
 </body>
 </html>

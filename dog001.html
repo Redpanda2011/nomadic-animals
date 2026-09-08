@@ -127,8 +127,10 @@
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const ANIMAL_ID = "DOG001";
 const ANIMAL_NAME = "Samantha the Dog";
+const ANIMAL_EMOJI = "🐶";
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("animal-name").textContent = ANIMAL_NAME;
+  document.getElementById("animal-emoji").textContent = ANIMAL_EMOJI;
 });
 </script>
 
@@ -139,7 +141,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   <div class="container">
 
-    <div class="animal">🐶</div>
+    <div class="animal" id="animal-emoji"></div>
 
     <div class="card">
       <div class="number" id="animal-name"></div>

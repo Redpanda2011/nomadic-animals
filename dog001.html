@@ -291,7 +291,7 @@ if (coords) {
     return;
   }
 
-  status.textContent = "Journey stop added! Thank you for helping <span id="footer-animal-name"></span> travel!";
+  status.textContent = `Journey stop added! Thank you for helping ${ANIMAL_NAME} travel!`;
   document.getElementById("found-form").reset();
 
   const container = document.getElementById("journey-stops");

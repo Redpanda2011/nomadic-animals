@@ -130,6 +130,7 @@ const ANIMAL_NAME = "Samantha the Dog";
 const ANIMAL_EMOJI = "🐶";
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("animal-name").textContent = ANIMAL_NAME;
+document.getElementById("journey-animal-name").textContent = ANIMAL_NAME;
   document.getElementById("animal-emoji").textContent = ANIMAL_EMOJI;
 });
 </script>
@@ -163,7 +164,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
      <div id="journey-stops"></div>
       <p>
-        This is where Dog #001 begins its adventure.
+        This is where <span id="journey-animal-name"></span> begins its adventure.
         Future finders will be able to add new locations
         as this Nomadic Animal travels.
       </p>

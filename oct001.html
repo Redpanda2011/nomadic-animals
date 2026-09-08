@@ -132,6 +132,7 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("animal-name").textContent = ANIMAL_NAME;
 document.getElementById("journey-animal-name").textContent = ANIMAL_NAME;
   document.getElementById("animal-emoji").textContent = ANIMAL_EMOJI;
+  document.getElementById("footer-animal-name").textContent = ANIMAL_NAME;
 });
 </script>
 
@@ -290,7 +291,7 @@ if (coords) {
     return;
   }
 
-  status.textContent = "Journey stop added! Thank you for helping Dog #001 travel!";
+  status.textContent = "Journey stop added! Thank you for helping <span id="footer-animal-name"></span> travel!";
   document.getElementById("found-form").reset();
 
   const container = document.getElementById("journey-stops");

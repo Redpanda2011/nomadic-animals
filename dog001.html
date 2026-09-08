@@ -114,6 +114,8 @@
       color: #666;
     }
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
@@ -150,6 +152,7 @@
         <strong>Starting Location:</strong><br>
         Springdale, Arkansas
       </p>
+<div id="journey-map" style="height: 350px; width: 100%; border-radius: 12px; margin: 20px 0;"></div>
 
      <div id="journey-stops"></div>
       <p>
@@ -188,6 +191,28 @@
   </footer>
 
 <script>
+  const journeyMap = L.map("journey-map").setView([36.1867, -94.1288], 8);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap contributors"
+}).addTo(journeyMap);
+async function getCoordinates(location) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(location)}`;
+
+  const response = await fetch(url);
+  const results = await response.json();
+
+  if (results.length === 0) {
+    return null;
+  }
+
+  return {
+    lat: parseFloat(results[0].lat),
+    lon: parseFloat(results[0].lon)
+  };
+}
+
   async function loadJourneyStops() {
     const { data, error } = await supabaseClient
       .from("journey_stops")
@@ -202,7 +227,7 @@
 
     const container = document.getElementById("journey-stops");
 
-    data.forEach(stop => {
+    for (const stop of data) {
       const item = document.createElement("p");
       item.innerHTML = `
         <strong>${stop.location}</strong><br>
@@ -211,7 +236,14 @@
         ${stop.found_date || ""}
       `;
       container.appendChild(item);
-    });
+      const coords = await getCoordinates(stop.location);
+
+if (coords) {
+  L.marker([coords.lat, coords.lon])
+    .addTo(journeyMap)
+    .bindPopup(`<strong>${stop.location}</strong><br>${stop.finder_name || ""}`);
+}
+    }
   }
 
   loadJourneyStops();

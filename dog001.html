@@ -125,6 +125,11 @@
     const SUPABASE_KEY = "sb_publishable_dgGRyfBcB3SvHJDamjGc0A_InKqDiz4";
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const ANIMAL_ID = "DOG001";
+const ANIMAL_NAME = "Samantha the Dog";
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("animal-name").textContent = ANIMAL_NAME;
+});
 </script>
 
   <header>
@@ -137,7 +142,7 @@
     <div class="animal">🐶</div>
 
     <div class="card">
-      <div class="number">Dog #001</div>
+      <div class="number" id="animal-name"></div>
       <p>You found a Nomadic Animal!</p>
       <p>
         This little traveler is making its way around the world,
@@ -220,7 +225,7 @@ async function getCoordinates(location) {
     const { data, error } = await supabaseClient
       .from("journey_stops")
       .select("*")
-      .eq("animal_id", "DOG001")
+      .eq("animal_id", ANIMAL_ID)
       .order("found_date", { ascending: true });
 
     if (error) {
@@ -269,7 +274,7 @@ if (coords) {
   const { error } = await supabaseClient
     .from("journey_stops")
     .insert({
-      animal_id: "DOG001",
+      animal_id: ANIMAL_ID,
       location: location,
       finder_name: finderName,
       message: message,

@@ -197,6 +197,9 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(journeyMap);
+
+const journeyMarkers = [];
+
 async function getCoordinates(location) {
   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(location)}`;
 
@@ -239,11 +242,16 @@ async function getCoordinates(location) {
       const coords = await getCoordinates(stop.location);
 
 if (coords) {
-  L.marker([coords.lat, coords.lon])
+ const marker = L.marker([coords.lat, coords.lon])
     .addTo(journeyMap)
     .bindPopup(`<strong>${stop.location}</strong><br>${stop.finder_name || ""}`);
+    journeyMarkers.push(marker);
 }
     }
+    if (journeyMarkers.length > 0) {
+    const group = L.featureGroup(journeyMarkers);
+    journeyMap.fitBounds(group.getBounds(), { padding: [40, 40] });
+}
   }
 
   loadJourneyStops();

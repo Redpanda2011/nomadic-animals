@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gabby the giraffe | Nomadic Animals</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f0;
+      color: #24352f;
+      text-align: center;
+    }
+
+    header {
+      background: #245c4d;
+      color: white;
+      padding: 30px 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 36px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 35px 20px;
+    }
+
+    .animal {
+      font-size: 80px;
+    }
+
+    .card {
+      background: white;
+      margin: 20px 0;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,.08);
+    }
+#found-form {
+  margin-top: 20px;
+}
+
+#found-form input,
+#found-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+#found-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+#found-form button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #245C4D;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#found-form button:hover {
+  opacity: 0.9;
+}
+
+#form-status {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 12px;
+}
+    .number {
+      color: #245c4d;
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .journey {
+      text-align: left;
+      line-height: 1.6;
+    }
+
+    .journey h2 {
+      text-align: center;
+      color: #245c4d;
+    }
+
+    footer {
+      padding: 25px;
+      color: #666;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+  <script>
+  const SUPABASE_URL = "https://dulufsbuinyiarcjmvgx.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_dgGRyfBcB3SvHJDamjGc0A_InKqDiz4";
+// CHANGE THESE FOR EACH NEW ANIMAL
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const ANIMAL_ID = "giraffe001";
+const ANIMAL_NAME = "Gabby the Giraffe";
+const ANIMAL_EMOJI = "🦒";
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("animal-name").textContent = ANIMAL_NAME;
+document.getElementById("journey-animal-name").textContent = ANIMAL_NAME;
+  document.getElementById("animal-emoji").textContent = ANIMAL_EMOJI;
+  document.getElementById("footer-animal-name").textContent = ANIMAL_NAME;
+});
+</script>
+
+  <header>
+    <h1>🐾 Nomadic Animals</h1>
+    <p>Find one. Scan it. Take it somewhere new.</p>
+  </header>
+
+  <div class="container">
+
+    <div class="animal" id="animal-emoji"></div>
+
+    <div class="card">
+      <div class="number" id="animal-name"></div>
+      <p>You found a Nomadic Animal!</p>
+      <p>
+        This little traveler is making its way around the world,
+        one person at a time.
+      </p>
+    </div>
+
+    <div class="card journey">
+      <h2>🌎 My Journey</h2>
+
+      <p>
+        <strong>Starting Location:</strong><br>
+        Springdale, Arkansas
+      </p>
+<div id="journey-map" style="height: 350px; width: 100%; border-radius: 12px; margin: 20px 0;"></div>
+
+     <div id="journey-stops"></div>
+      <p>
+        This is where <span id="journey-animal-name"></span> begins its adventure.
+        Future finders will be able to add new locations
+        as this Nomadic Animal travels.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Found Me?</h2>
+      <p>
+        Take me somewhere new, record where you found me,
+        and then release me for the next person to discover!
+      </p>
+    <form id="found-form">
+  <input id="finder-name" type="text" placeholder="Your name" required><br><br>
+
+  <input id="found-location" type="text" placeholder="Where did you find me?" required><br><br>
+
+  <textarea id="found-message" placeholder="Leave a message"></textarea><br><br>
+
+  <input id="found-date" type="date" required><br><br>
+
+  <button type="submit">Add My Stop</button>
+</form>
+
+<p id="form-status"></p>
+
+    </div>
+
+  </div>
+
+  <footer>
+    Nomadic Animals • Every Animal Has a Story
+  </footer>
+
+<script>
+  const journeyMap = L.map("journey-map").setView([36.1867, -94.1288], 8);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "&copy; OpenStreetMap contributors"
+}).addTo(journeyMap);
+
+const journeyMarkers = [];
+
+async function getCoordinates(location) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(location)}`;
+
+  const response = await fetch(url);
+  const results = await response.json();
+
+  if (results.length === 0) {
+    return null;
+  }
+
+  return {
+    lat: parseFloat(results[0].lat),
+    lon: parseFloat(results[0].lon)
+  };
+}
+
+  async function loadJourneyStops() {
+    const { data, error } = await supabaseClient
+      .from("journey_stops")
+      .select("*")
+      .eq("animal_id", ANIMAL_ID)
+      .order("found_date", { ascending: true });
+
+    if (error) {
+      console.error("Error loading journey stops:", error);
+      return;
+    }
+
+    const container = document.getElementById("journey-stops");
+
+    for (const stop of data) {
+      const item = document.createElement("p");
+      item.innerHTML = `
+        <strong>${stop.location}</strong><br>
+        ${stop.finder_name ? "Found by: " + stop.finder_name + "<br>" : ""}
+        ${stop.message ? stop.message + "<br>" : ""}
+        ${stop.found_date || ""}
+      `;
+      container.appendChild(item);
+      const coords = await getCoordinates(stop.location);
+
+if (coords) {
+ const marker = L.marker([coords.lat, coords.lon])
+    .addTo(journeyMap)
+    .bindPopup(`<strong>${stop.location}</strong><br>${stop.finder_name || ""}`);
+    journeyMarkers.push(marker);
+}
+    }
+    if (journeyMarkers.length > 0) {
+    const group = L.featureGroup(journeyMarkers);
+    journeyMap.fitBounds(group.getBounds(), { padding: [40, 40] });
+}
+  }
+
+  loadJourneyStops();
+  document.getElementById("found-form").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const finderName = document.getElementById("finder-name").value;
+  const location = document.getElementById("found-location").value;
+  const message = document.getElementById("found-message").value;
+  const foundDate = document.getElementById("found-date").value;
+  const status = document.getElementById("form-status");
+
+  status.textContent = "Saving...";
+
+  const { error } = await supabaseClient
+    .from("journey_stops")
+    .insert({
+      animal_id: ANIMAL_ID,
+      location: location,
+      finder_name: finderName,
+      message: message,
+      found_date: foundDate
+    });
+
+  if (error) {
+    console.error("Error saving journey stop:", error);
+    status.textContent = "Sorry, something went wrong. Please try again.";
+    return;
+  }
+
+  status.textContent = `Journey stop added! Thank you for helping ${ANIMAL_NAME} travel!`;
+  document.getElementById("found-form").reset();
+
+  const container = document.getElementById("journey-stops");
+  container.innerHTML = "";
+  await loadJourneyStops();
+});
+
+</script>
+</body>
+</html>
